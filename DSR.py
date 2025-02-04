@@ -1,8 +1,10 @@
+import pandas as pd
+
 MAX_NAME_LENGTH = 32
 
 class Student:
-    def __init__(self, faculty_number: str, egn: str, first_name: str, middle_name: str,
-                 last_name: str, subjects: dict, sex: str, age: int, state: str):
+    def __init__(self, faculty_number: str = '', egn: str = '', first_name: str = '', middle_name: str = '',
+                 last_name: str = '', subjects: dict = {}, sex: str = '', age: int = -1, state: str = ''):
         self._faculty_number = faculty_number
         self._egn = egn
         self._first_name = first_name
@@ -156,10 +158,8 @@ class Student:
 
     def add_subjects(self):
         subjects = {}
-        while True:
+        for _ in range(5):
             subject = input("Enter subject: ")
-            if not subject:
-                break
             grade = int(input("Enter grade: "))  # TODO add validation
             subjects[subject] = grade
         self.subjects = subjects
@@ -199,25 +199,53 @@ class Student:
         self.add_age()
         self.add_state()
 
+    def __str__(self):
+        subjects = " ".join([f"{subject}: {grade}" for subject, grade in self.subjects.items()])
+        return (f"{self.faculty_number} {self.egn} {self.first_name} {self.middle_name} "
+                f"{self.last_name} {self.sex} {self.age} {self.state} {subjects}")
+
+    
+class Group:
+    def __init__(self, students: list):
+        self._students = students
+
+    @property
+    def students(self):
+        return self._students
+
+    @students.setter
+    def students(self, students):
+        self._students = students
+
+    def add_students(self):
+        students = []
+        while True:
+            student = Student()
+            student.add()
+            students.append(student)
+            if input("Add another student? (y/n): ") == "n":
+                break
+        self.students = students
+
     def display(self):
-        print(self.faculty_number, self.egn, self.first_name, self.middle_name, self.last_name,
-              self.sex, self.age, self.state, end=" ")
-        for subject in self.subjects:
-            print(subject, ": ", self.subjects[subject], sep="", end=" ")
-        print()
+        for student in self.students:
+            print(student)
         
 
 student_1 = Student("24621948", "0391002864", "Oleksandr", "Oleksandrovich", "Kuzhylnyi",
                    {"BP": 5, "Math": 6, "Digital logic": 6, "Electronics": 5, "English": 6 },
                     "M", 18, "Active")
 
-student_1.add()
+print(student_1)
+student_2 = Student()
+#student_2.add()
 
-student_1.display()
+group = Group([student_1, student_2])
+group.display()
 
 def main():
     while True:
-        choice = int(input("Choose from 1 to 12:\n"))
+        choice = int(input("Choose from 1 to 12:"))
         if choice in range(1, 13):
             break
         print("Invalid input")
@@ -226,7 +254,7 @@ def main():
         case 1:
             print("a")
         case 2:
-            print("b")
+            group.display()
         case _ :
             print("else")
 
