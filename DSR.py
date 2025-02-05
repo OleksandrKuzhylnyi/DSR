@@ -1,6 +1,12 @@
-import pandas as pd
-
 MAX_NAME_LENGTH = 32
+NUMBER_OF_SUBJECTS = 5
+
+def get_int(prompt):
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Not an integer.")
 
 class Student:
     def __init__(self, faculty_number: str = '', egn: str = '', first_name: str = '', middle_name: str = '',
@@ -76,7 +82,11 @@ class Student:
 
     @subjects.setter
     def subjects(self, subjects):
-        self._subjects = subjects
+        if (len(subjects) == NUMBER_OF_SUBJECTS
+            and all(grade in [0, 2, 3, 4, 5, 6]) for grade in subjects.values()):
+            self._subjects = subjects
+        else:
+            raise ValueError("Invalid subjects")
 
     @property
     def sex(self):
@@ -158,9 +168,10 @@ class Student:
 
     def add_subjects(self):
         subjects = {}
-        for _ in range(5):
-            subject = input("Enter subject: ")
-            grade = int(input("Enter grade: "))  # TODO add validation
+        subjects["BP"] = get_int("Enter grade for BP: ") # BP is mandatory
+        for i in range(2, NUMBER_OF_SUBJECTS + 1):
+            subject = input(f"Enter subject number {i}: ")
+            grade = get_int(f"Enter grade for {subject}: ")
             subjects[subject] = grade
         self.subjects = subjects
 
@@ -236,9 +247,8 @@ student_1 = Student("24621948", "0391002864", "Oleksandr", "Oleksandrovich", "Ku
                    {"BP": 5, "Math": 6, "Digital logic": 6, "Electronics": 5, "English": 6 },
                     "M", 18, "Active")
 
-print(student_1)
 student_2 = Student()
-#student_2.add()
+student_2.add()
 
 group = Group([student_1, student_2])
 group.display()
@@ -261,3 +271,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
