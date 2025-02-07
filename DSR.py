@@ -1,7 +1,9 @@
+from typing import List
+
 MAX_NAME_LENGTH = 32
 NUMBER_OF_SUBJECTS = 5
 
-def get_int(prompt):
+def get_int(prompt: str) -> int:
     while True:
         try:
             return int(input(prompt))
@@ -167,13 +169,27 @@ class Student:
                 print("Invalid last name")
 
     def add_subjects(self):
-        subjects = {}
-        subjects["BP"] = get_int("Enter grade for BP: ") # BP is mandatory
-        for i in range(2, NUMBER_OF_SUBJECTS + 1):
-            subject = input(f"Enter subject number {i}: ")
-            grade = get_int(f"Enter grade for {subject}: ")
-            subjects[subject] = grade
-        self.subjects = subjects
+        while True:
+            grade = get_int("Enter grade in BP: ")  # BP is mandatory
+            if grade in [0, 2, 3, 4, 5, 6]:
+                break
+            print("Invalid grade")
+        self.subjects["BP"] = grade
+        for _ in range(NUMBER_OF_SUBJECTS - 1):
+            self.add_subject()
+
+    def add_subject(self):
+        while True:
+            subject_name = input("Enter subject name: ")
+            if subject_name not in self.subjects:
+                break
+            print("This subject already exists")
+        while True:
+            grade = get_int(f"Enter grade in {subject_name}: ")
+            if grade in [0, 2, 3, 4, 5, 6]:
+                break
+            print("Invalid grade")
+        self.subjects[subject_name] = grade
 
     def add_sex(self):
         while True:
@@ -217,7 +233,7 @@ class Student:
 
     
 class Group:
-    def __init__(self, students: list):
+    def __init__(self, students: List[Student] = []):
         self._students = students
 
     @property
@@ -229,44 +245,32 @@ class Group:
         self._students = students
 
     def add_students(self):
-        students = []
-        while True:
+        num_new_students = get_int("Enter number of new students: ")
+        for _ in range(num_new_students):
             student = Student()
             student.add()
-            students.append(student)
-            if input("Add another student? (y/n): ") == "n":
-                break
-        self.students = students
+            self.students.append(student)
 
     def display(self):
         for student in self.students:
             print(student)
-        
 
-student_1 = Student("24621948", "0391002864", "Oleksandr", "Oleksandrovich", "Kuzhylnyi",
-                   {"BP": 5, "Math": 6, "Digital logic": 6, "Electronics": 5, "English": 6 },
-                    "M", 18, "Active")
-
-student_2 = Student()
-student_2.add()
-
-group = Group([student_1, student_2])
-group.display()
 
 def main():
+    group = Group()
     while True:
-        choice = int(input("Choose from 1 to 12:"))
+        choice = int(input("Choose from 1 to 12: "))
         if choice in range(1, 13):
             break
         print("Invalid input")
 
-    match(choice):
-        case 1:
-            print("a")
-        case 2:
-            group.display()
-        case _ :
-            print("else")
+        match(choice):
+            case 1:
+                group.add_students()
+            case 2:
+                group.display()
+            case _ :
+                print("TODO")
 
 
 if __name__ == "__main__":
