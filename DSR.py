@@ -10,6 +10,13 @@ def get_int(prompt: str) -> int:
         except ValueError:
             print("Not an integer.")
 
+def get_grade(subject_name: str) -> int:
+    while True:
+        grade = get_int(f"Enter grade in {subject_name}: ")
+        if grade in [0, 2, 3, 4, 5, 6]:
+            return grade
+        print("Invalid grade")
+
 class Student:
     def __init__(self, faculty_number: str = '', egn: str = '', first_name: str = '', middle_name: str = '',
                  last_name: str = '', subjects: dict = {}, sex: str = '', age: int = -1, state: str = ''):
@@ -169,12 +176,7 @@ class Student:
                 print("Invalid last name")
 
     def add_subjects(self):
-        while True:
-            grade = get_int("Enter grade in BP: ")  # BP is mandatory
-            if grade in [0, 2, 3, 4, 5, 6]:
-                break
-            print("Invalid grade")
-        self.subjects["BP"] = grade
+        self.subjects["BP"] = get_grade("BP")  # BP is mandatory
         for _ in range(NUMBER_OF_SUBJECTS - 1):
             self.add_subject()
 
@@ -184,12 +186,7 @@ class Student:
             if subject_name not in self.subjects:
                 break
             print("This subject already exists")
-        while True:
-            grade = get_int(f"Enter grade in {subject_name}: ")
-            if grade in [0, 2, 3, 4, 5, 6]:
-                break
-            print("Invalid grade")
-        self.subjects[subject_name] = grade
+        self.subjects[subject_name] = get_grade(subject_name)
 
     def add_sex(self):
         while True:
@@ -255,20 +252,35 @@ class Group:
         for student in self.students:
             print(student)
 
+    def search_by_grade_in_BP(self):
+        right_students = []
+        lower_grade = get_int("Enter lower grade: ")
+        upper_grade = get_int("Enter upper grade: ")
+        for student in self.students:
+            if student.subjects["BP"] >= lower_grade and student.subjects["BP"] <= upper_grade:
+                right_students.append(student)
+        for student in right_students:
+            print(student)
 
 def main():
     group = Group()
     while True:
-        choice = int(input("Choose from 1 to 12: "))
-        if choice in range(1, 13):
-            break
-        print("Invalid input")
+        while True:
+            print("1. Add students")
+            print("2. Display students")
+            print("3. Search by grade in BP")
+            choice = int(input("Choose from 1 to 12: "))
+            if choice in range(1, 13):
+                break
+            print("Invalid input")
 
         match(choice):
             case 1:
                 group.add_students()
             case 2:
                 group.display()
+            case 3:
+                group.search_by_grade_in_BP()
             case _ :
                 print("TODO")
 
