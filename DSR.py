@@ -262,6 +262,22 @@ class Group:
         for student in right_students:
             print(student)
 
+    def search_weak_students(self):
+        right_students = []
+        for student in self.students:
+            if 2 in student.subjects.values():
+                right_students.append(student)
+        for student in right_students:
+            print(student)
+
+    def sort_by_first_name(self):
+        self.students.sort(key=lambda student: student.first_name)
+
+    def save(self):
+        with open("students.txt", "w") as file:
+            for student in self.students:
+                file.write(str(student) + "\n")
+
 def main():
     group = Group()
     while True:
@@ -269,6 +285,9 @@ def main():
             print("1. Add students")
             print("2. Display students")
             print("3. Search by grade in BP")
+            print("4. Search weak students")
+            print("5. Sort by first name")
+            print("6. Save")
             choice = int(input("Choose from 1 to 12: "))
             if choice in range(1, 13):
                 break
@@ -281,6 +300,12 @@ def main():
                 group.display()
             case 3:
                 group.search_by_grade_in_BP()
+            case 4:
+                group.search_weak_students()
+            case 5:
+                group.sort_by_first_name()
+            case 6:
+                group.save()
             case _ :
                 print("TODO")
 
