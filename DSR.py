@@ -19,16 +19,16 @@ def get_grade(subject_name: str) -> int:
 
 class Student:
     def __init__(self, faculty_number: str = '', egn: str = '', first_name: str = '', middle_name: str = '',
-                 last_name: str = '', subjects: dict = {}, sex: str = '', age: int = -1, state: str = ''):
+                 last_name: str = '', sex: str = '', age: int = -1, state: str = '', subjects: dict = {}):
         self._faculty_number = faculty_number
         self._egn = egn
         self._first_name = first_name
         self._middle_name = middle_name
         self._last_name = last_name
-        self._subjects = subjects
         self._sex = sex
         self._age = age
         self._state = state
+        self._subjects = subjects
 
     @property
     def faculty_number(self):
@@ -86,18 +86,6 @@ class Student:
             raise ValueError("Invalid last name")
 
     @property
-    def subjects(self):
-        return self._subjects
-
-    @subjects.setter
-    def subjects(self, subjects):
-        if (len(subjects) == NUMBER_OF_SUBJECTS
-            and all(grade in [0, 2, 3, 4, 5, 6]) for grade in subjects.values()):
-            self._subjects = subjects
-        else:
-            raise ValueError("Invalid subjects")
-
-    @property
     def sex(self):
         return self._sex
 
@@ -129,6 +117,18 @@ class Student:
             self._state = state
         else:
             raise ValueError("Invalid state")
+        
+    @property
+    def subjects(self):
+        return self._subjects
+
+    @subjects.setter
+    def subjects(self, subjects):
+        if (len(subjects) == NUMBER_OF_SUBJECTS
+            and all(grade in [0, 2, 3, 4, 5, 6]) for grade in subjects.values()):
+            self._subjects = subjects
+        else:
+            raise ValueError("Invalid subjects")
 
     def add_faculty_number(self):
         while True:
@@ -175,19 +175,6 @@ class Student:
             except ValueError:
                 print("Invalid last name")
 
-    def add_subjects(self):
-        self.subjects["BP"] = get_grade("BP")  # BP is mandatory
-        for _ in range(NUMBER_OF_SUBJECTS - 1):
-            self.add_subject()
-
-    def add_subject(self):
-        while True:
-            subject_name = input("Enter subject name: ")
-            if subject_name not in self.subjects:
-                break
-            print("This subject already exists")
-        self.subjects[subject_name] = get_grade(subject_name)
-
     def add_sex(self):
         while True:
             try:
@@ -212,16 +199,29 @@ class Student:
             except ValueError:
                 print("Invalid state")
 
+    def add_subjects(self):
+        self.subjects["BP"] = get_grade("BP")  # BP is mandatory
+        for _ in range(NUMBER_OF_SUBJECTS - 1):
+            self.add_subject()
+
+    def add_subject(self):
+        while True:
+            subject_name = input("Enter subject name: ")
+            if subject_name not in self.subjects:
+                break
+            print("This subject already exists")
+        self.subjects[subject_name] = get_grade(subject_name)
+
     def add(self):
         self.add_faculty_number()
         self.add_egn()
         self.add_first_name()
         self.add_middle_name()
         self.add_last_name()
-        self.add_subjects()
         self.add_sex()
         self.add_age()
         self.add_state()
+        self.add_subjects()
 
     def __str__(self):
         subjects = " ".join([f"{subject}: {grade}" for subject, grade in self.subjects.items()])
@@ -272,11 +272,27 @@ class Group:
 
     def sort_by_first_name(self):
         self.students.sort(key=lambda student: student.first_name)
-
+        self.display()
+        
     def save(self):
-        with open("students.txt", "w") as file:
+        with open("students_py.txt", "w") as file:
             for student in self.students:
-                file.write(str(student) + "\n")
+                subjects = " ".join([f"{subject} {grade}" 
+                                    for subject, grade in student.subjects.items()])
+                file.write((f"{student.faculty_number} {student.egn}  "
+                            f"{student.first_name} {student.middle_name} {student.last_name} "
+                            f"{student.sex} {student.age} {student.state} {subjects}\n"))
+                
+    def load(self):
+        with open("students_py.txt", "r") as file:
+            for line in file:
+                data = line.strip().split()
+                not_subjects = data[:8]
+                subjects = {}
+                for i in range(8, len(data), 2):
+                    subjects[data[i]] = int(data[i + 1])
+                student = Student(*not_subjects, subjects)
+                self.students.append(student)
 
 def main():
     group = Group()
@@ -288,6 +304,7 @@ def main():
             print("4. Search weak students")
             print("5. Sort by first name")
             print("6. Save")
+            print("7. Load")
             choice = int(input("Choose from 1 to 12: "))
             if choice in range(1, 13):
                 break
@@ -306,6 +323,8 @@ def main():
                 group.sort_by_first_name()
             case 6:
                 group.save()
+            case 7:
+                group.load()
             case _ :
                 print("TODO")
 
