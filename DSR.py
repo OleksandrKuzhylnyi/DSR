@@ -10,6 +10,13 @@ def get_int(prompt: str) -> int:
         except ValueError:
             print("Not an integer.")
 
+def get_float(prompt: str) -> float:
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Not a float.")
+
 def get_grade(subject_name: str) -> int:
     while True:
         grade = get_int(f"Enter grade in {subject_name}: ")
@@ -18,8 +25,9 @@ def get_grade(subject_name: str) -> int:
         print("Invalid grade")
 
 class Student:
-    def __init__(self, faculty_number: str = '', egn: str = '', first_name: str = '', middle_name: str = '',
-                 last_name: str = '', sex: str = '', age: int = -1, state: str = '', subjects: dict = {}):
+    def __init__(self, faculty_number: str = '', egn: str = '', first_name: str = '',
+                 middle_name: str = '', last_name: str = '', sex: str = '', age: int = -1,
+                  state: str = '', subjects: dict = {}):
         self._faculty_number = faculty_number
         self._egn = egn
         self._first_name = first_name
@@ -29,6 +37,7 @@ class Student:
         self._age = age
         self._state = state
         self._subjects = subjects
+        self.average_grade = sum(self.subjects.values()) / NUMBER_OF_SUBJECTS
 
     @property
     def faculty_number(self):
@@ -212,6 +221,9 @@ class Student:
             print("This subject already exists")
         self.subjects[subject_name] = get_grade(subject_name)
 
+    def calculate_average_grade(self):
+        self.average_grade = sum(self.subjects.values()) / len(self.subjects)
+
     def add(self):
         self.add_faculty_number()
         self.add_egn()
@@ -222,11 +234,12 @@ class Student:
         self.add_age()
         self.add_state()
         self.add_subjects()
+        self.calculate_average_grade()
 
     def __str__(self):
         subjects = " ".join([f"{subject}: {grade}" for subject, grade in self.subjects.items()])
         return (f"{self.faculty_number} {self.egn} {self.first_name} {self.middle_name} "
-                f"{self.last_name} {self.sex} {self.age} {self.state} {subjects}")
+                f"{self.last_name} {self.sex} {self.age} {self.state} {subjects} {self.average_grade}")
 
     
 class Group:
@@ -286,13 +299,36 @@ class Group:
     def load(self):
         with open("students_py.txt", "r") as file:
             for line in file:
-                data = line.strip().split()
+                data = line.strip().split() # FIX requires that doesn't have spaces
                 not_subjects = data[:8]
                 subjects = {}
                 for i in range(8, len(data), 2):
                     subjects[data[i]] = int(data[i + 1])
                 student = Student(*not_subjects, subjects)
                 self.students.append(student)
+
+    def search_by_state_and_sort_by_faculty_number(self):
+        right_students = []
+        state = ""
+        while state not in ["Active", "On leave", "Graduated"]:
+            state = input("Enter state: ")
+        for student in self.students:
+            if student.state == state:
+                right_students.append(student)
+        right_students.sort(key=lambda student: student.faculty_number)
+        for student in right_students:
+            print(student)
+
+    def search_by_average_grade_and_sort_by_egn(self):
+        right_students = []
+        lower_grade = get_float("Enter lower grade: ")
+        upper_grade = get_float("Enter upper grade: ")
+        for student in self.students:
+            if student.average_grade >= lower_grade and student.average_grade <= upper_grade:
+                right_students.append(student)
+        right_students.sort(key=lambda student: student.egn)
+        for student in right_students:
+            print(student)
 
 def main():
     group = Group()
@@ -305,6 +341,9 @@ def main():
             print("5. Sort by first name")
             print("6. Save")
             print("7. Load")
+            print("8. Search by state and sort by faculty number")
+            print("9. Search by average grade and sort by EGN")
+            print("12. Exit")
             choice = int(input("Choose from 1 to 12: "))
             if choice in range(1, 13):
                 break
@@ -325,8 +364,12 @@ def main():
                 group.save()
             case 7:
                 group.load()
-            case _ :
-                print("TODO")
+            case 8:
+                group.search_by_state_and_sort_by_faculty_number()
+            case 9:
+                group.search_by_average_grade_and_sort_by_egn()
+            case 12 :
+                break
 
 
 if __name__ == "__main__":
